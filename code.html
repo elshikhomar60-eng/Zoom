@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZOOM — Luxury Streetwear &amp; Quiet Luxury House</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Firebase App & Firestore & Storage CDN (Modular / Compat for seamless zero-build single file) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              cream: '#F9F8F6',
+              surface: '#FFFFFF',
+              dark: '#111111',
+              charcoal: '#1C1C1A',
+              muted: '#737370',
+              border: '#E5E2DC',
+              accent: '#8C7A6B'
+            }
+          },
+          letterSpacing: {
+            'ultra-wide': '0.22em',
+            'tight-lux': '-0.02em',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #F9F8F6;
+      color: #111111;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection {
+      background: #111111;
+      color: #F9F8F6;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F9F8F6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D4D0C7;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #111111;
+    }
+    .editorial-border {
+      border-color: #E5E2DC;
+    }
+    .blur-backdrop {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-black selection:text-white">
+<!-- ================= TOP TICKER / MARQUEE ================= -->
+<aside class="bg-black text-[#F9F8F6] text-[10px] sm:text-[11px] tracking-ultra-wide uppercase py-2 px-4 text-center font-medium border-b border-neutral-800">
+<span>COMPLIMENTARY DOMESTIC WHITE-GLOVE DELIVERY OVER 2,500 EGP  •  COLLECTION '26 LIVE</span>
+</aside>
+<!-- ================= HEADER / NAVIGATION ================= -->
+<header class="sticky top-0 z-40 bg-[#F9F8F6]/90 blur-backdrop border-b editorial-border transition-all duration-300">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<!-- Left: Mobile Menu Trigger & Category Navigation -->
+<div class="flex items-center space-x-8">
+<button aria-label="Open navigation menu" class="lg:hidden p-2 text-black hover:opacity-70 transition-opacity" id="mobileMenuBtn">
+<i class="w-5 h-5" data-lucide="menu"></i>
+</button>
+<nav class="hidden lg:flex items-center space-x-7 text-[12px] font-semibold tracking-widest uppercase text-neutral-600" id="desktopCategoryNav">
+<!-- Dynamically populated from state/Firebase -->
+<button class="category-nav-link text-black hover:text-black transition-colors border-b border-black pb-0.5" data-category="ALL" onclick="filterCategory('ALL')">All Items</button>
+<button class="category-nav-link hover:text-black transition-colors" data-category="HOODIES" onclick="filterCategory('HOODIES')">Hoodies</button>
+<button class="category-nav-link hover:text-black transition-colors" data-category="JACKETS" onclick="filterCategory('JACKETS')">Jackets</button>
+<button class="category-nav-link hover:text-black transition-colors" data-category="T-SHIRTS" onclick="filterCategory('T-SHIRTS')">T-Shirts</button>
+<button class="category-nav-link hover:text-black transition-colors" data-category="PANTS" onclick="filterCategory('PANTS')">Pants</button>
+</nav>
+</div>
+<!-- Center: Brand Logo Wordmark -->
+<div class="text-center cursor-pointer select-none" onclick="filterCategory('ALL')">
+<h1 class="text-2xl sm:text-3xl font-extrabold tracking-[0.35em] uppercase text-black font-sans" id="brandNameHeader">
+          ZOOM
+        </h1>
+<p class="text-[9px] tracking-[0.35em] text-neutral-500 uppercase font-light mt-0.5">Quiet Luxury House</p>
+</div>
+<!-- Right: Search Toggle & Cart Icon -->
+<div class="flex items-center space-x-5">
+<div class="relative hidden sm:block">
+<input class="w-36 lg:w-48 bg-transparent text-xs tracking-wider uppercase border-b editorial-border py-1.5 pl-2 pr-6 focus:outline-none focus:border-black transition-all placeholder:text-neutral-400" id="searchInput" oninput="handleSearch(this.value)" placeholder="SEARCH PIECE..." type="text"/>
+<i class="w-3.5 h-3.5 text-neutral-400 absolute right-1 top-2.5 pointer-events-none" data-lucide="search"></i>
+</div>
+<!-- Bag Button -->
+<button aria-label="Open Shopping Cart" class="relative p-2.5 rounded-full hover:bg-neutral-200/50 transition-colors flex items-center gap-2 group" id="openCartBtn">
+<i class="w-5 h-5 text-black group-hover:scale-105 transition-transform" data-lucide="shopping-bag"></i>
+<span class="w-4 h-4 rounded-full bg-black text-[#F9F8F6] text-[10px] font-bold flex items-center justify-center" id="cartCountBadge">0</span>
+</button>
+</div>
+</div>
+<!-- Mobile Drawer Navigation -->
+<div class="fixed inset-0 z-50 bg-black/60 blur-backdrop hidden transition-opacity" id="mobileDrawer">
+<div class="bg-[#F9F8F6] w-4/5 max-w-sm h-full p-6 flex flex-col justify-between shadow-2xl">
+<div>
+<div class="flex justify-between items-center pb-6 border-b editorial-border">
+<span class="text-xl font-bold tracking-[0.25em]">ZOOM</span>
+<button class="p-2" id="closeMobileMenuBtn"><i class="w-5 h-5" data-lucide="x"></i></button>
+</div>
+<div class="mt-6 mb-6">
+<input class="w-full bg-white border editorial-border p-3 text-xs tracking-wider uppercase focus:outline-none focus:border-black" oninput="handleSearch(this.value)" placeholder="Search products..." type="text"/>
+</div>
+<nav class="flex flex-col space-y-4 text-sm font-semibold tracking-widest uppercase" id="mobileCategoryList">
+<!-- Dynamically populated -->
+</nav>
+</div>
+<div class="pt-6 border-t editorial-border text-[11px] text-neutral-400 tracking-wider">
+          EXQUISITE CRAFTSMANSHIP • 2026 EDITION
+        </div>
+</div>
+</div>
+</header>
+<!-- ================= HERO EDITORIAL SECTION ================= -->
+<section class="relative w-full border-b editorial-border overflow-hidden bg-neutral-900 text-white min-h-[580px] sm:min-h-[660px] flex items-center">
+<!-- Hero Background Image (Editable via CMS) -->
+<img alt="ZOOM Luxury Editorial Autumn Winter Collection" class="absolute inset-0 w-full h-full object-cover object-center opacity-75 mix-blend-luminosity scale-100 hover:scale-105 transition-transform duration-1000 ease-out" id="heroImageElement" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrsnS_PC_ku99exGem7IkfaU_v8dqcPKm8GbcWfSEHbiXh9AR7shTGHZHmze2U-mr0w2z3GM5ade10WNeVpVCFL4cE9YL9gVRtDYyPwz42I3Fmaey7ZZDkRxvFSdx-Bmc6CyoxyWn8nmqPZldK8RkGus2NDLNpQ6JS5e22IQPl8bau82umyRThoRA9x1RNU6XD-3H-QqQL0CdW03CDqawPegNhWTwZ7RWDVPl3UXUSF27K2g_s6kKLDw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 flex flex-col items-start justify-center">
+<span class="text-xs uppercase tracking-[0.3em] font-medium text-neutral-300 mb-3 bg-white/10 px-3.5 py-1.5 backdrop-blur-md border border-white/20" id="heroBadge">
+        AUTUMN / WINTER CAPSULE '26
+      </span>
+<h2 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight-lux uppercase max-w-2xl leading-[1.05] mb-6" id="heroTitle">
+        SILENT POWER. TIMELESS ARCHITECTURE.
+      </h2>
+<p class="text-sm sm:text-base font-light text-neutral-300 max-w-lg mb-8 leading-relaxed tracking-wide" id="heroSubtitle">
+        Heavyweight Egyptian cottons, structured silhouettes, and uncompromised precision tailored for modern connoisseurs.
+      </p>
+<div class="flex flex-wrap gap-4">
+<a class="px-8 py-4 bg-white text-black text-xs font-bold tracking-[0.25em] uppercase hover:bg-neutral-200 transition-colors shadow-lg" href="#catalogSection">
+          EXPLORE CATALOGUE
+        </a>
+<button class="px-8 py-4 bg-transparent border border-white/40 text-white text-xs font-bold tracking-[0.25em] uppercase hover:bg-white/10 transition-colors backdrop-blur-sm" onclick="filterCategory('HOODIES')">
+          VIEW HOODIES
+        </button>
+</div>
+</div>
+</section>
+<!-- ================= EDITORIAL STATS / BRAND PILLARS ================= -->
+<section class="bg-white border-b editorial-border py-8 px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+<div class="space-y-1">
+<p class="text-xs font-bold tracking-widest uppercase text-black">100% GIZA COTTON</p>
+<p class="text-[11px] text-neutral-500 tracking-wider">Heavyweight custom 520 GSM french terry</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs font-bold tracking-widest uppercase text-black">CUSTOM HARDWARE</p>
+<p class="text-[11px] text-neutral-500 tracking-wider">Brushed palladium and laser-engraved accents</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs font-bold tracking-widest uppercase text-black">FAST LOCAL DISPATCH</p>
+<p class="text-[11px] text-neutral-500 tracking-wider">Direct courier tracking across Egypt</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs font-bold tracking-widest uppercase text-black">CONCIERGE CHECKOUT</p>
+<p class="text-[11px] text-neutral-500 tracking-wider">Personalized luxury WhatsApp assistance</p>
+</div>
+</div>
+</section>
+<!-- ================= PRODUCT CATALOG SECTION ================= -->
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full" id="catalogSection">
+<!-- Filter Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-6 border-b editorial-border gap-4">
+<div>
+<p class="text-[11px] font-bold tracking-[0.25em] text-neutral-400 uppercase mb-1">CURATED SELECTION</p>
+<h3 class="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-black" id="catalogHeaderTitle">
+          ALL PIECES
+        </h3>
+</div>
+<!-- Filter Pills -->
+<div class="flex flex-wrap items-center gap-2" id="filterPillsContainer">
+<!-- Rendered dynamically -->
+</div>
+</div>
+<!-- Live Products Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12" id="productsGrid">
+<!-- Injected via JavaScript -->
+</div>
+<!-- Empty State -->
+<div class="hidden py-24 text-center" id="emptyCatalogState">
+<i class="w-12 h-12 mx-auto text-neutral-400 mb-4 stroke-1" data-lucide="package-search"></i>
+<h4 class="text-lg font-bold uppercase tracking-wider text-black">No Pieces Found</h4>
+<p class="text-xs text-neutral-500 mt-1 max-w-xs mx-auto">There are currently no items matching your criteria in this collection.</p>
+<button class="mt-6 px-6 py-2.5 bg-black text-white text-xs font-bold uppercase tracking-widest" onclick="filterCategory('ALL')">
+        RESET FILTERS
+      </button>
+</div>
+</main>
+<!-- ================= PRODUCT DETAIL MODAL ================= -->
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 bg-black/70 blur-backdrop transition-all duration-300 opacity-0 pointer-events-none" id="productDetailModal">
+<div class="relative bg-white w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-none shadow-2xl border editorial-border flex flex-col md:flex-row transform scale-95 transition-transform duration-300">
+<!-- Close Button -->
+<button aria-label="Close modal" class="absolute top-4 right-4 z-20 w-10 h-10 bg-[#F9F8F6] border editorial-border flex items-center justify-center hover:bg-black hover:text-white transition-colors" onclick="closeProductModal()">
+<i class="w-5 h-5" data-lucide="x"></i>
+</button>
+<!-- Modal Gallery Image -->
+<div class="md:w-1/2 bg-neutral-100 flex items-center justify-center relative overflow-hidden group min-h-[360px] md:min-h-[500px]">
+<img alt="Product Detail Preview" class="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105" id="modalProductImage" src=""/>
+<span class="absolute top-4 left-4 text-[10px] uppercase font-bold tracking-widest bg-white/90 backdrop-blur-sm px-3 py-1 border editorial-border" id="modalCategoryBadge">
+          CATEGORY
+        </span>
+</div>
+<!-- Modal Content & Controls -->
+<div class="md:w-1/2 p-6 sm:p-8 flex flex-col justify-between">
+<div>
+<!-- Title & Price in EGP -->
+<h3 class="text-xl sm:text-2xl font-bold uppercase tracking-wide text-black mb-2" id="modalProductTitle">
+            PRODUCT TITLE
+          </h3>
+<div class="flex items-baseline gap-2 mb-4">
+<span class="text-xl sm:text-2xl font-extrabold text-black font-sans" id="modalProductPrice">
+              0
+            </span>
+<span class="text-xs font-bold text-neutral-500 uppercase tracking-widest">EGP</span>
+</div>
+<p class="text-xs text-neutral-600 leading-relaxed mb-6 pb-6 border-b editorial-border" id="modalProductDescription">
+            Hand-crafted with meticulous attention to detail. Tailored boxy silhouette engineered with ultra-heavy cotton weight for an elevated architectural drape.
+          </p>
+<!-- Color Swatches Selection -->
+<div class="mb-6">
+<div class="flex justify-between items-center mb-2.5">
+<span class="text-xs font-bold uppercase tracking-widest text-black">Selected Hue:</span>
+<span class="text-xs text-neutral-500 uppercase tracking-wider font-semibold" id="modalSelectedColorLabel">ONYX</span>
+</div>
+<div class="flex flex-wrap gap-2.5" id="modalColorSwatches">
+<!-- Swatches injected dynamically -->
+</div>
+</div>
+<!-- Size Selection Grid -->
+<div class="mb-6">
+<div class="flex justify-between items-center mb-2.5">
+<span class="text-xs font-bold uppercase tracking-widest text-black">Select Size:</span>
+<span class="text-[11px] text-neutral-400 uppercase tracking-wider underline cursor-pointer hover:text-black">Fit Guide</span>
+</div>
+<div class="grid grid-cols-5 gap-2" id="modalSizeGrid">
+<!-- Sizes injected dynamically -->
+</div>
+</div>
+<!-- Quantity Selector -->
+<div class="mb-8">
+<span class="block text-xs font-bold uppercase tracking-widest text-black mb-2.5">Quantity:</span>
+<div class="flex items-center border editorial-border w-32 bg-[#F9F8F6]">
+<button class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 transition-colors text-black font-bold text-sm" onclick="adjustModalQty(-1)">-</button>
+<span class="flex-1 text-center font-bold text-xs text-black" id="modalQtyDisplay">1</span>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-neutral-200 transition-colors text-black font-bold text-sm" onclick="adjustModalQty(1)">+</button>
+</div>
+</div>
+</div>
+<!-- Add to Bag Action Button -->
+<div>
+<button class="w-full py-4 bg-black text-white text-xs font-bold tracking-[0.25em] uppercase hover:bg-neutral-800 active:scale-[0.99] transition-all flex items-center justify-center gap-3 shadow-lg" id="modalAddToBagBtn" onclick="addCurrentProductToBag()">
+<i class="w-4 h-4" data-lucide="shopping-bag"></i>
+<span>ADD TO BAG</span>
+</button>
+<p class="text-[10px] text-center text-neutral-400 uppercase tracking-widest mt-3">
+            VERIFIED LUXURY • 14-DAY BESPOKE EXCHANGE
+          </p>
+</div>
+</div>
+</div>
+</div>
+<!-- ================= SLIDING SIDE CART DRAWER ================= -->
+<div class="fixed inset-0 z-50 bg-black/60 blur-backdrop hidden transition-opacity duration-300" id="cartBackdrop" onclick="toggleCartDrawer(false)"></div>
+<aside class="fixed top-0 right-0 z-50 w-full sm:w-[420px] h-full bg-[#F9F8F6] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out border-l editorial-border" id="cartDrawer">
+<!-- Drawer Header -->
+<div class="p-6 border-b editorial-border flex items-center justify-between bg-white">
+<div class="flex items-center gap-3">
+<i class="w-5 h-5 text-black" data-lucide="shopping-bag"></i>
+<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-black">YOUR BAG</h3>
+<span class="text-xs bg-neutral-100 px-2 py-0.5 font-mono text-neutral-600" id="drawerItemsCount">0</span>
+</div>
+<button aria-label="Close Bag" class="p-2 text-neutral-500 hover:text-black hover:rotate-90 transition-all" onclick="toggleCartDrawer(false)">
+<i class="w-5 h-5" data-lucide="x"></i>
+</button>
+</div>
+<!-- Drawer Item List -->
+<div class="flex-grow overflow-y-auto p-6 space-y-4 divide-y editorial-border" id="cartItemsList">
+<!-- Items dynamically populated -->
+</div>
+<!-- Drawer Footer & WhatsApp Checkout -->
+<div class="p-6 border-t editorial-border bg-white space-y-4">
+<div class="space-y-1.5">
+<div class="flex justify-between text-xs text-neutral-500 tracking-wider">
+<span>SUBTOTAL</span>
+<span id="drawerSubtotalAmount">0 EGP</span>
+</div>
+<div class="flex justify-between text-xs text-neutral-500 tracking-wider">
+<span>SHIPPING</span>
+<span class="text-emerald-700 font-bold uppercase">COMPLIMENTARY</span>
+</div>
+<div class="flex justify-between text-sm font-extrabold text-black tracking-wider pt-2 border-t editorial-border">
+<span>GRAND TOTAL</span>
+<span id="drawerGrandTotalAmount">0 EGP</span>
+</div>
+</div>
+<!-- Instant WhatsApp Order Button -->
+<button class="w-full py-4 bg-[#111111] hover:bg-[#25D366] text-white text-xs font-bold tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2.5 shadow-md group" onclick="triggerWhatsAppCheckout()">
+<i class="w-4 h-4 text-[#25D366] group-hover:text-white transition-colors" data-lucide="message-circle"></i>
+<span>ORDER VIA WHATSAPP</span>
+</button>
+<p class="text-[10px] text-center text-neutral-400 uppercase tracking-widest">
+        DIRECT ROBUST ORDER CONCIERGE DISPATCH
+      </p>
+</div>
+</aside>
+<!-- ================= FOOTER ================= -->
+<footer class="bg-black text-[#F9F8F6] pt-16 pb-12 border-t border-neutral-900 mt-20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-neutral-800">
+<!-- Brand Info -->
+<div class="space-y-4 md:col-span-1">
+<h4 class="text-2xl font-extrabold tracking-[0.35em] text-white">ZOOM</h4>
+<p class="text-xs text-neutral-400 leading-relaxed font-light">
+            An independent luxury fashion house devoted to architectural structure, quiet minimalism, and bespoke Egyptian cotton construction.
+          </p>
+</div>
+<!-- Quick Links -->
+<div class="space-y-3">
+<h5 class="text-xs font-bold uppercase tracking-widest text-neutral-300">COLLECTIONS</h5>
+<ul class="text-xs text-neutral-400 space-y-2 font-medium tracking-wider">
+<li><a class="hover:text-white transition-colors" href="javascript:void(0)" onclick="filterCategory('HOODIES')">HOODIES &amp; KNITS</a></li>
+<li><a class="hover:text-white transition-colors" href="javascript:void(0)" onclick="filterCategory('JACKETS')">OUTERWEAR</a></li>
+<li><a class="hover:text-white transition-colors" href="javascript:void(0)" onclick="filterCategory('T-SHIRTS')">OVERSIZED TEES</a></li>
+<li><a class="hover:text-white transition-colors" href="javascript:void(0)" onclick="filterCategory('PANTS')">TAILORED PANTS</a></li>
+</ul>
+</div>
+<!-- Concierge & Inquiries -->
+<div class="space-y-3">
+<h5 class="text-xs font-bold uppercase tracking-widest text-neutral-300">CONCIERGE</h5>
+<p class="text-xs text-neutral-400 leading-relaxed">
+            Direct assistance is available 7 days a week for sizing, bespoke fabric consultations, and private commissions.
+          </p>
+<div class="pt-1">
+<span class="text-xs text-neutral-300 font-mono tracking-wider">WHATSAPP: <span id="footerWhatsappPreview">+20 100 000 0000</span></span>
+</div>
+</div>
+<!-- Newsletter / Dispatch -->
+<div class="space-y-3">
+<h5 class="text-xs font-bold uppercase tracking-widest text-neutral-300">PRIVATE ACCESS</h5>
+<p class="text-xs text-neutral-400 leading-relaxed">
+            Receive private allocations of seasonal releases before general release.
+          </p>
+<form class="flex" onsubmit="handleNewsletter(event)">
+<input class="bg-neutral-900 text-xs px-3 py-2.5 border border-neutral-700 text-white focus:outline-none focus:border-white flex-1 tracking-wider uppercase" placeholder="YOUR EMAIL..." required="" type="email"/>
+<button class="bg-white text-black px-4 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-neutral-300 transition-colors" type="submit">JOIN</button>
+</form>
+</div>
+</div>
+<!-- Bottom Bar with Strict Compliance (No city name, clean copyright) & HIDDEN ADMIN TRIGGER -->
+<div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-neutral-500 tracking-wider">
+<p>© 2026 ZOOM. ALL RIGHTS RESERVED.</p>
+<!-- SUBTLE UNOBTRUSIVE CMS ADMIN LINK -->
+<div class="mt-4 sm:mt-0">
+<button class="text-neutral-600 hover:text-neutral-300 transition-colors text-[10px] tracking-widest font-mono" onclick="promptAdminLogin()">
+            [ Admin Login ]
+          </button>
+</div>
+</div>
+</div>
+</footer>
+<!-- ================= ADMIN PASSWORD AUTH MODAL ================= -->
+<div class="fixed inset-0 z-50 bg-black/80 blur-backdrop hidden flex items-center justify-center p-4" id="adminAuthModal">
+<div class="bg-white w-full max-w-sm p-8 shadow-2xl border editorial-border text-center">
+<i class="w-10 h-10 mx-auto text-black mb-3" data-lucide="shield-check"></i>
+<h3 class="text-lg font-bold uppercase tracking-widest text-black">HOUSE CONTROL</h3>
+<p class="text-xs text-neutral-500 mb-6">Enter master key to access ZOOM Cloud CMS</p>
+<form onsubmit="verifyAdminAuth(event)">
+<input class="w-full text-center tracking-[0.3em] font-mono text-sm py-3 border editorial-border bg-[#F9F8F6] focus:outline-none focus:border-black mb-4" id="adminPasswordInput" placeholder="ENTER ACCESS CODE..." required="" type="password"/>
+<div class="flex gap-2">
+<button class="w-1/2 py-3 bg-neutral-200 text-black text-xs font-bold uppercase tracking-wider hover:bg-neutral-300" onclick="closeAdminAuthModal()" type="button">
+            CANCEL
+          </button>
+<button class="w-1/2 py-3 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800" type="submit">
+            ENTER
+          </button>
+</div>
+</form>
+<p class="text-[10px] text-neutral-400 mt-4 font-mono">Default: zoom2026</p>
+</div>
+</div>
+<!-- ================= SECURE ADMIN CMS DASHBOARD MODAL ================= -->
+<div class="fixed inset-0 z-50 bg-black/80 blur-backdrop flex items-center justify-center p-2 sm:p-6 overflow-y-auto" id="adminDashboardModal">
+<div class="bg-[#F9F8F6] w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl border editorial-border overflow-hidden"><!-- CMS Header with Luxury Aesthetic -->
+<div class="bg-black text-white px-6 sm:px-8 py-5 flex items-center justify-between border-b border-neutral-800">
+<div class="flex items-center gap-4">
+<span class="text-xl font-extrabold tracking-[0.3em] uppercase text-white font-sans">ZOOM</span>
+<span class="hidden sm:inline-block w-px h-5 bg-neutral-700"></span>
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+<h2 class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-200">Admin Studio • Store Management CMS</h2>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[11px] text-neutral-400 font-mono tracking-wider hidden md:inline">LIVE ENCRYPTED SYNC</span>
+<button class="px-4 py-2 bg-neutral-900 border border-neutral-700 hover:bg-neutral-800 text-white text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-2" onclick="document.getElementById('adminDashboardModal').classList.add('hidden')">
+<i class="w-3.5 h-3.5" data-lucide="arrow-left"></i>
+<span>Return to Storefront</span>
+</button>
+</div>
+</div>
+<!-- Top Tabs Navigation -->
+<div class="bg-white border-b editorial-border px-6 sm:px-8 flex space-x-8 text-xs font-bold uppercase tracking-wider overflow-x-auto">
+<button class="py-4 border-b-2 border-black text-black flex items-center gap-2 shrink-0">
+<i class="w-4 h-4" data-lucide="box"></i>
+<span>Products &amp; Add New Piece</span>
+<span class="bg-black text-white text-[10px] px-2 py-0.5 rounded-full font-mono">6</span>
+</button>
+<button class="py-4 border-b-2 border-transparent text-neutral-500 hover:text-black flex items-center gap-2 shrink-0 transition-colors" onclick="showToast('STORE SETTINGS ACTIVE')">
+<i class="w-4 h-4" data-lucide="sliders"></i>
+<span>Store &amp; WhatsApp Settings</span>
+</button>
+<button class="py-4 border-b-2 border-transparent text-neutral-500 hover:text-black flex items-center gap-2 shrink-0 transition-colors" onclick="showToast('HERO BANNER EDITOR ACTIVE')">
+<i class="w-4 h-4" data-lucide="layout-template"></i>
+<span>Hero Banner Editor</span>
+</button>
+<button class="py-4 border-b-2 border-transparent text-neutral-500 hover:text-black flex items-center gap-2 shrink-0 transition-colors" onclick="showToast('CATEGORIES EDITOR')">
+<i class="w-4 h-4" data-lucide="layers"></i>
+<span>Categories</span>
+</button>
+</div>
+<!-- Scrollable Content Canvas -->
+<div class="flex-grow p-6 sm:p-8 overflow-y-auto space-y-10">
+<!-- Grid: Add Piece Form & Editorial Highlights -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left 2 Cols: Bespoke Product Creation Form -->
+<div class="lg:col-span-2 bg-white p-6 sm:p-8 border editorial-border shadow-sm">
+<div class="flex items-center justify-between pb-4 mb-6 border-b editorial-border">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-400">ATELIER CATALOGUE ENTRY</p>
+<h3 class="text-lg font-bold uppercase tracking-wider text-black">Add New Luxury Piece</h3>
+</div>
+<span class="text-[10px] bg-neutral-100 text-neutral-600 px-3 py-1 font-mono tracking-widest uppercase border editorial-border">DRAFT ENGINE</span>
+</div>
+<form class="space-y-5" onsubmit="handleCreateProduct(event)">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="md:col-span-2">
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Product Title</label>
+<input class="w-full p-3 text-xs bg-[#F9F8F6] border editorial-border focus:border-black focus:outline-none uppercase font-semibold tracking-wider" id="newProdTitle" placeholder="e.g. OVERSIZED HEAVYWEIGHT CASHMERE HOODIE" required="" type="text" value="OVERSIZED HEAVYWEIGHT CASHMERE HOODIE"/>
+</div>
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Price (EGP)</label>
+<div class="relative">
+<input class="w-full p-3 pr-12 text-xs bg-[#F9F8F6] border editorial-border focus:border-black focus:outline-none font-bold font-sans" id="newProdPrice" placeholder="4800" required="" type="number" value="4800"/>
+<span class="absolute right-3 top-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest pointer-events-none">EGP</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Category</label>
+<select class="w-full p-3 text-xs bg-[#F9F8F6] border editorial-border focus:border-black focus:outline-none uppercase font-semibold" id="newProdCategory">
+<option selected="" value="HOODIES">HOODIES &amp; KNITWEAR</option>
+<option value="JACKETS">OUTERWEAR &amp; BOMBERS</option>
+<option value="T-SHIRTS">MINIMALIST TEES</option>
+<option value="PANTS">TAILORED PANTS</option>
+<option value="FOOTWEAR">FOOTWEAR</option>
+<option value="ACCESSORIES">ACCESSORIES</option>
+</select>
+</div>
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Size Toggles</label>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 text-xs font-bold border editorial-border bg-black text-white transition-all" onclick="this.classList.toggle('bg-black'); this.classList.toggle('text-white');" type="button">S</button>
+<button class="flex-1 py-2.5 text-xs font-bold border editorial-border bg-black text-white transition-all" onclick="this.classList.toggle('bg-black'); this.classList.toggle('text-white');" type="button">M</button>
+<button class="flex-1 py-2.5 text-xs font-bold border editorial-border bg-black text-white transition-all" onclick="this.classList.toggle('bg-black'); this.classList.toggle('text-white');" type="button">L</button>
+<button class="flex-1 py-2.5 text-xs font-bold border editorial-border bg-black text-white transition-all" onclick="this.classList.toggle('bg-black'); this.classList.toggle('text-white');" type="button">XL</button>
+<button class="flex-1 py-2.5 text-xs font-bold border editorial-border bg-neutral-100 text-neutral-400 hover:text-black transition-all" onclick="this.classList.toggle('bg-black'); this.classList.toggle('text-white');" type="button">XXL</button>
+</div>
+<input id="newProdSizes" type="hidden" value="S, M, L, XL"/>
+</div>
+</div>
+<!-- Color Swatches & Picker -->
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Color Palette Selection</label>
+<div class="flex flex-wrap items-center gap-3 p-3 bg-[#F9F8F6] border editorial-border">
+<div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border editorial-border">
+<span class="w-3.5 h-3.5 rounded-full bg-[#111111] border border-neutral-300"></span>
+<span class="text-xs font-mono font-bold">Onyx (#111111)</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border editorial-border">
+<span class="w-3.5 h-3.5 rounded-full bg-[#E3DFD5] border border-neutral-300"></span>
+<span class="text-xs font-mono font-bold">Washed Bone (#E3DFD5)</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border editorial-border">
+<span class="w-3.5 h-3.5 rounded-full bg-[#3A3A39] border border-neutral-300"></span>
+<span class="text-xs font-mono font-bold">Slate (#3A3A39)</span>
+</div>
+<div class="flex items-center gap-2 ml-auto">
+<input class="w-8 h-8 border editorial-border cursor-pointer bg-transparent" type="color" value="#111111"/>
+<input class="w-40 p-1.5 text-xs bg-white border editorial-border font-mono" id="newProdColors" type="text" value="Onyx:#111111, Bone:#E3DFD5"/>
+</div>
+</div>
+</div>
+<!-- Product Image Dropzone & URL -->
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Piece Imagery &amp; Dropzone</label>
+<div class="border-2 border-dashed editorial-border p-5 text-center bg-[#F9F8F6] hover:bg-neutral-100 transition-colors cursor-pointer mb-2">
+<i class="w-6 h-6 mx-auto text-neutral-400 mb-1" data-lucide="upload-cloud"></i>
+<p class="text-xs font-bold uppercase tracking-wider text-black">Drag &amp; Drop High-Res Editorial Photography</p>
+<p class="text-[10px] text-neutral-400 mt-0.5">Supports JPG, WEBP, PNG up to 10MB • Automatic Cloud Resizing</p>
+<input accept="image/*" class="hidden" id="newProdFileInput" onchange="previewNewImage(this)" type="file"/>
+</div>
+<input class="w-full p-2.5 text-xs bg-[#F9F8F6] border editorial-border focus:border-black focus:outline-none" id="newProdImageUrl" placeholder="Or enter direct high-resolution image URL..." type="url" value="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&amp;w=1000&amp;auto=format&amp;fit=crop"/>
+</div>
+<!-- Fabric Specification / Notes -->
+<div>
+<label class="block text-[11px] font-bold uppercase tracking-wider mb-1.5 text-black">Fabric &amp; Architectural Drape Notes</label>
+<textarea class="w-full p-3 text-xs bg-[#F9F8F6] border editorial-border focus:border-black focus:outline-none leading-relaxed" id="newProdDesc" rows="3">550 GSM French Terry woven from authentic long-staple Egyptian Giza cotton. Custom boxy architectural cut, seamless hood construction, dropped ergonomic shoulders, and laser-burnished palladium cord tips.</textarea>
+</div>
+<button class="w-full py-4 bg-black text-white text-xs font-bold uppercase tracking-[0.25em] hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg" type="submit">
+<i class="w-4 h-4" data-lucide="sparkles"></i>
+<span>PUBLISH PIECE TO CATALOG</span>
+</button>
+</form>
+</div>
+<!-- Right 1 Col: Quick Settings & Hero Control Panel -->
+<div class="space-y-6">
+<!-- Store & WhatsApp Quick Configuration -->
+<div class="bg-white p-6 border editorial-border shadow-sm">
+<div class="flex items-center gap-2 pb-3 mb-4 border-b editorial-border">
+<i class="w-4 h-4 text-black" data-lucide="message-circle"></i>
+<h4 class="text-xs font-bold uppercase tracking-widest text-black">Concierge &amp; Order Routing</h4>
+</div>
+<div class="space-y-3.5 text-xs">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Target WhatsApp Number</label>
+<input class="w-full p-2.5 text-xs bg-[#F9F8F6] border editorial-border font-mono font-bold focus:border-black" id="quickSettingWhatsapp" value="+201019888999"/>
+<p class="text-[9px] text-neutral-400 mt-1">All customer orders format and send directly to this number.</p>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Master Admin Passkey</label>
+<input class="w-full p-2.5 text-xs bg-[#F9F8F6] border editorial-border font-mono focus:border-black" type="password" value="zoom2026"/>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-1">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Currency</label>
+<input class="w-full p-2.5 text-xs bg-[#F9F8F6] border editorial-border font-bold" readonly="" value="EGP (Egyptian Pound)"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">House Accent</label>
+<div class="flex items-center gap-2 border editorial-border p-1 bg-[#F9F8F6]">
+<input class="w-7 h-7 bg-transparent border-0 cursor-pointer" type="color" value="#111111"/>
+<span class="text-[11px] font-mono font-semibold">#111111</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2.5 mt-2 bg-neutral-900 hover:bg-black text-white text-[11px] font-bold uppercase tracking-widest transition-colors" onclick="showToast('STORE SETTINGS UPDATED')">
+            SAVE STORE CONFIG
+          </button>
+</div>
+</div>
+<!-- Hero Banner Customizer -->
+<div class="bg-white p-6 border editorial-border shadow-sm">
+<div class="flex items-center gap-2 pb-3 mb-4 border-b editorial-border">
+<i class="w-4 h-4 text-black" data-lucide="image"></i>
+<h4 class="text-xs font-bold uppercase tracking-widest text-black">Hero Banner Customizer</h4>
+</div>
+<div class="space-y-3 text-xs">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Capsule Badge</label>
+<input class="w-full p-2 text-xs bg-[#F9F8F6] border editorial-border uppercase font-semibold" value="AUTUMN / WINTER CAPSULE '26"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Headline Text</label>
+<input class="w-full p-2 text-xs bg-[#F9F8F6] border editorial-border uppercase font-bold" value="SILENT POWER. TIMELESS ARCHITECTURE."/>
+</div>
+<button class="w-full py-2.5 mt-1 border border-black hover:bg-black hover:text-white text-black text-[11px] font-bold uppercase tracking-widest transition-colors" onclick="showToast('HERO BANNER SYNCHRONIZED')">
+            UPDATE HERO LIVE
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Products Table & Inventory Management -->
+<div class="bg-white p-6 sm:p-8 border editorial-border shadow-sm space-y-5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b editorial-border">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-400">ACTIVE HOUSE INVENTORY</p>
+<h3 class="text-lg font-bold uppercase tracking-wider text-black">Live Pieces &amp; Catalog Control</h3>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs text-neutral-500 font-mono">6 Items Active</span>
+<button class="px-3.5 py-1.5 border editorial-border text-[11px] font-bold uppercase tracking-wider hover:bg-neutral-100 transition-colors flex items-center gap-1.5" onclick="showToast('ALL INVENTORY BACKED UP')">
+<i class="w-3.5 h-3.5" data-lucide="download"></i>
+<span>Export CSV</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs">
+<thead class="bg-neutral-50 border-b editorial-border text-[10px] uppercase font-bold tracking-wider text-neutral-500">
+<tr>
+<th class="p-3.5">Piece</th>
+<th class="p-3.5">Category</th>
+<th class="p-3.5">Price (EGP)</th>
+<th class="p-3.5">Sizes</th>
+<th class="p-3.5">Stock Status</th>
+<th class="p-3.5 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y editorial-border">
+<tr class="hover:bg-neutral-50/80 transition-colors">
+<td class="p-3.5 flex items-center gap-3.5">
+<img alt="Hoodie" class="w-12 h-14 object-cover border editorial-border bg-neutral-100 shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnn1mSXXltgxO5UQZLJiWXd5zqHuSiBdKJBwhDZytZGNvKJmW45BiLSqLrOg4MZAeznrXsN1V4JTwCFsjkNRhdXRT2-BGwEkyEIyzf4-DdaGRuPgx6LNTRZQzVXz2zkCGVsIKHqFtf3_IdG92SEFASmqa4DN6dXiNNqYgcWUfC4FpXAcl0sCTuJUm5L1NdWJ7nqzsr7e0mM_lk1hU1Nbbt8kB-HbdjPPRGA_kpYiOfIpiloaMxRs55AA"/>
+<div>
+<div class="font-bold text-black uppercase tracking-wide">ARCHITECTURAL OVERSIZED HOODIE</div>
+<span class="text-[10px] text-neutral-400 font-mono">ID: zoom-01 • 540 GSM Cotton</span>
+</div>
+</td>
+<td class="p-3.5 font-bold uppercase text-[11px] text-neutral-600">HOODIES</td>
+<td class="p-3.5 font-bold font-sans text-sm">
+<input class="w-24 p-1.5 border editorial-border bg-[#F9F8F6] text-xs font-bold font-sans text-black" onchange="showToast('PRICE UPDATED TO ' + this.value + ' EGP')" type="number" value="3600"/>
+</td>
+<td class="p-3.5 text-[11px] font-mono text-neutral-500">S, M, L, XL, XXL</td>
+<td class="p-3.5">
+<button class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 transition-colors" onclick="this.innerText = this.innerText === 'IN STOCK' ? 'SOLD OUT' : 'IN STOCK'; this.classList.toggle('text-emerald-700'); this.classList.toggle('bg-emerald-50'); this.classList.toggle('text-neutral-500'); this.classList.toggle('bg-neutral-100');" type="button">
+                IN STOCK
+              </button>
+</td>
+<td class="p-3.5 text-right space-x-2">
+<button class="px-3 py-1 border editorial-border hover:bg-black hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('EDITING PIECE ZOOM-01')">Edit</button>
+<button class="px-3 py-1 bg-neutral-100 text-neutral-600 hover:text-red-600 text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('PIECE ARCHIVED')">Delete</button>
+</td>
+</tr>
+<tr class="hover:bg-neutral-50/80 transition-colors">
+<td class="p-3.5 flex items-center gap-3.5">
+<img alt="Jacket" class="w-12 h-14 object-cover border editorial-border bg-neutral-100 shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4WS8CJmc5-PJKBcbAoeFZ5vjXhzoO51y0tLj4E73SEV0sqGit_BYVwaQMCxlefLAeXgUk4jKpXk_s0kYcCUx1w9cJ7uDuZneK4XrpSruF9OQi6n3K8cG6q55yucL1Vf0pccSZ7njlMQ49Lk5hAFV22a9awgCl6IiUj4D9O-a-rZb0SLmMqGugD5dXV9lJeEHpHLe6WTlAdJc3D0YngP-lp4q_HqSCmahp75lpMzTnD0DV-976qaWcag"/>
+<div>
+<div class="font-bold text-black uppercase tracking-wide">STRUCTURED BOMBER OVERSHIRT</div>
+<span class="text-[10px] text-neutral-400 font-mono">ID: zoom-02 • Gabardine Wool</span>
+</div>
+</td>
+<td class="p-3.5 font-bold uppercase text-[11px] text-neutral-600">JACKETS</td>
+<td class="p-3.5 font-bold font-sans text-sm">
+<input class="w-24 p-1.5 border editorial-border bg-[#F9F8F6] text-xs font-bold font-sans text-black" onchange="showToast('PRICE UPDATED TO ' + this.value + ' EGP')" type="number" value="4950"/>
+</td>
+<td class="p-3.5 text-[11px] font-mono text-neutral-500">M, L, XL</td>
+<td class="p-3.5">
+<button class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 transition-colors" onclick="this.innerText = this.innerText === 'IN STOCK' ? 'SOLD OUT' : 'IN STOCK'; this.classList.toggle('text-emerald-700'); this.classList.toggle('bg-emerald-50'); this.classList.toggle('text-neutral-500'); this.classList.toggle('bg-neutral-100');" type="button">
+                IN STOCK
+              </button>
+</td>
+<td class="p-3.5 text-right space-x-2">
+<button class="px-3 py-1 border editorial-border hover:bg-black hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('EDITING PIECE ZOOM-02')">Edit</button>
+<button class="px-3 py-1 bg-neutral-100 text-neutral-600 hover:text-red-600 text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('PIECE ARCHIVED')">Delete</button>
+</td>
+</tr>
+<tr class="hover:bg-neutral-50/80 transition-colors">
+<td class="p-3.5 flex items-center gap-3.5">
+<img alt="Tee" class="w-12 h-14 object-cover border editorial-border bg-neutral-100 shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBptVg7KSHjuEF2cPrFiRec3dxTD5BarsQpiK2xK1QHPJOReNZ82SnbFTk6BE-12qXlY4a2w4p_S5MupkkUZeo91S_RWU3_q6Gj18RDEn7GSU9ThcRLf7wfnHegJheD7X7lwvzckAGDtzhZRTTtOH2uGSfN-eub1tlzhWp8-PjV7RMsblUanGDZnwbZwwqczq-oKtP669Cst8SyzTa6olxW2rTHylwdsZ0lcKZuqdJh6zZ1cMQN7XCWwA"/>
+<div>
+<div class="font-bold text-black uppercase tracking-wide">HEAVYWEIGHT MINIMALIST CREW TEE</div>
+<span class="text-[10px] text-neutral-400 font-mono">ID: zoom-03 • 320 GSM High-Twist</span>
+</div>
+</td>
+<td class="p-3.5 font-bold uppercase text-[11px] text-neutral-600">T-SHIRTS</td>
+<td class="p-3.5 font-bold font-sans text-sm">
+<input class="w-24 p-1.5 border editorial-border bg-[#F9F8F6] text-xs font-bold font-sans text-black" onchange="showToast('PRICE UPDATED TO ' + this.value + ' EGP')" type="number" value="1950"/>
+</td>
+<td class="p-3.5 text-[11px] font-mono text-neutral-500">S, M, L, XL</td>
+<td class="p-3.5">
+<button class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 transition-colors" onclick="this.innerText = this.innerText === 'IN STOCK' ? 'SOLD OUT' : 'IN STOCK'; this.classList.toggle('text-emerald-700'); this.classList.toggle('bg-emerald-50'); this.classList.toggle('text-neutral-500'); this.classList.toggle('bg-neutral-100');" type="button">
+                IN STOCK
+              </button>
+</td>
+<td class="p-3.5 text-right space-x-2">
+<button class="px-3 py-1 border editorial-border hover:bg-black hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('EDITING PIECE ZOOM-03')">Edit</button>
+<button class="px-3 py-1 bg-neutral-100 text-neutral-600 hover:text-red-600 text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('PIECE ARCHIVED')">Delete</button>
+</td>
+</tr>
+<tr class="hover:bg-neutral-50/80 transition-colors">
+<td class="p-3.5 flex items-center gap-3.5">
+<img alt="Pants" class="w-12 h-14 object-cover border editorial-border bg-neutral-100 shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkx45dFq8PItW94L27ADar7zSGb3ls63NTsFqnqaMrCN3DM9T0_KIZe-Fsb0FI4ORqBNK0R5hvVYSo7F22RomNJAmq8LI-MIh-AfOdDh-9GPob6yWhsXfOpoKkz4oCDgMusWQ1SW1QBmlSA5QjGeujUQgQCYeUSL4do5fY3DVwXIJGZCy18hNwQLbjF8J2BAdMWEKh-eHXdh-to9su5jGNL859P8bWiFkyupYhxazElePvrEANVVmzFw"/>
+<div>
+<div class="font-bold text-black uppercase tracking-wide">PLEATED TAILORED LOUNGE TROUSERS</div>
+<span class="text-[10px] text-neutral-400 font-mono">ID: zoom-04 • Double Front Pleats</span>
+</div>
+</td>
+<td class="p-3.5 font-bold uppercase text-[11px] text-neutral-600">PANTS</td>
+<td class="p-3.5 font-bold font-sans text-sm">
+<input class="w-24 p-1.5 border editorial-border bg-[#F9F8F6] text-xs font-bold font-sans text-black" onchange="showToast('PRICE UPDATED TO ' + this.value + ' EGP')" type="number" value="3850"/>
+</td>
+<td class="p-3.5 text-[11px] font-mono text-neutral-500">S, M, L, XL</td>
+<td class="p-3.5">
+<button class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 transition-colors" onclick="this.innerText = this.innerText === 'IN STOCK' ? 'SOLD OUT' : 'IN STOCK'; this.classList.toggle('text-emerald-700'); this.classList.toggle('bg-emerald-50'); this.classList.toggle('text-neutral-500'); this.classList.toggle('bg-neutral-100');" type="button">
+                IN STOCK
+              </button>
+</td>
+<td class="p-3.5 text-right space-x-2">
+<button class="px-3 py-1 border editorial-border hover:bg-black hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('EDITING PIECE ZOOM-04')">Edit</button>
+<button class="px-3 py-1 bg-neutral-100 text-neutral-600 hover:text-red-600 text-[10px] font-bold uppercase tracking-wider transition-colors" onclick="showToast('PIECE ARCHIVED')">Delete</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div></div>
+</div>
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div class="fixed bottom-6 right-6 z-50 bg-black text-white text-xs font-bold tracking-widest uppercase py-3 px-6 shadow-2xl border border-neutral-700 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2" id="toastNotification">
+<i class="w-4 h-4 text-emerald-400" data-lucide="check"></i>
+<span id="toastMessage">ADDED TO BAG</span>
+</div>
+<!-- ================= APPLICATION ARCHITECTURE & JAVASCRIPT ENGINE ================= -->
+<script>
+    /* =====================================================================
+       ZOOM GLOBAL STATE STORE & INITIAL CATALOGUE DATA (EGP CURRENCY)
+       ===================================================================== */
+    const DEFAULT_STORE_CONFIG = {
+      brandName: "ZOOM",
+      whatsappNumber: "+201019888999", // Replaceable in Admin Panel
+      adminPassword: "zoom2026",
+      accentColor: "#111111",
+      hero: {
+        badge: "AUTUMN / WINTER CAPSULE '26",
+        title: "SILENT POWER. TIMELESS ARCHITECTURE.",
+        subtitle: "Heavyweight Egyptian cottons, structured silhouettes, and uncompromised precision tailored for modern connoisseurs.",
+        imageUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop"
+      },
+      categories: ["HOODIES", "JACKETS", "T-SHIRTS", "PANTS"],
+      firebase: {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: ""
+      }
+    };
+
+    // Curated high-end launch catalogue
+    const INITIAL_PRODUCTS = [
+      {
+        id: "zoom-01",
+        title: "ARCHITECTURAL OVERSIZED HOODIE",
+        category: "HOODIES",
+        price: 3600, // EGP
+        sizes: ["S", "M", "L", "XL", "XXL"],
+        colors: [
+          { name: "Onyx Black", hex: "#111111" },
+          { name: "Washed Bone", hex: "#E3DFD5" },
+          { name: "Charcoal Slate", hex: "#3A3A39" }
+        ],
+        image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000&auto=format&fit=crop",
+        description: "Engineered from 540 GSM double-combed Egyptian cotton terry. Features a seamless double-layered hood, dropped shoulders, and subtle raw-edge ribbing."
+      },
+      {
+        id: "zoom-02",
+        title: "STRUCTURED BOMBER OVERSHIRT",
+        category: "JACKETS",
+        price: 4950, // EGP
+        sizes: ["M", "L", "XL"],
+        colors: [
+          { name: "Pitch Black", hex: "#0D0D0D" },
+          { name: "Dust Sage", hex: "#7A8279" }
+        ],
+        image: "https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=1000&auto=format&fit=crop",
+        description: "Heavy gabardine wool blend with matte hardware. Tailored with a sharp boxy drape, storm flap closure, and hidden ergonomic magnetic pockets."
+      },
+      {
+        id: "zoom-03",
+        title: "HEAVYWEIGHT MINIMALIST CREW TEE",
+        category: "T-SHIRTS",
+        price: 1950, // EGP
+        sizes: ["S", "M", "L", "XL"],
+        colors: [
+          { name: "Raw Ecru", hex: "#ECE9E2" },
+          { name: "Deep Obsidian", hex: "#141414" }
+        ],
+        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1000&auto=format&fit=crop",
+        description: "320 GSM high-twist jersey cotton from Upper Egypt. Clean binding collar with zero visible branding for the ultimate quiet luxury statement."
+      },
+      {
+        id: "zoom-04",
+        title: "PLEATED TAILORED LOUNGE TROUSERS",
+        category: "PANTS",
+        price: 3850, // EGP
+        sizes: ["S", "M", "L", "XL"],
+        colors: [
+          { name: "Carbon Slate", hex: "#222222" },
+          { name: "Sand Taupe", hex: "#A89F91" }
+        ],
+        image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=1000&auto=format&fit=crop",
+        description: "Double front pleats engineered with an elasticated waistband and internal drawcords. Cut wide through the thigh with a clean break at the ankle."
+      },
+      {
+        id: "zoom-05",
+        title: "MONOLITH RAW-SEAM ZIP HOODIE",
+        category: "HOODIES",
+        price: 4200, // EGP
+        sizes: ["S", "M", "L", "XL"],
+        colors: [
+          { name: "Washed Obsidian", hex: "#1A1A1A" },
+          { name: "Smoked Olive", hex: "#4A4D46" }
+        ],
+        image: "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?q=80&w=1000&auto=format&fit=crop",
+        description: "Two-way custom palladium zipper with elongated cord pulls. Heavy brushed interior finish designed for effortless cold-weather layering."
+      },
+      {
+        id: "zoom-06",
+        title: "DOUBLE-LAYERED RELAXED SHORTS",
+        category: "PANTS",
+        price: 2600, // EGP
+        sizes: ["S", "M", "L", "XL"],
+        colors: [
+          { name: "Onyx", hex: "#111111" },
+          { name: "Bone", hex: "#E5E1D8" }
+        ],
+        image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=1000&auto=format&fit=crop",
+        description: "Sculpted knee-length drape with thermal mesh under-lining and heavy braided cotton drawstrings."
+      }
+    ];
+
+    // Reactive State
+    let appState = {
+      config: JSON.parse(localStorage.getItem('zoom_config')) || DEFAULT_STORE_CONFIG,
+      products: JSON.parse(localStorage.getItem('zoom_products')) || INITIAL_PRODUCTS,
+      cart: JSON.parse(localStorage.getItem('zoom_cart')) || [],
+      selectedCategory: 'ALL',
+      searchQuery: '',
+      currentModalProduct: null,
+      modalSelectedSize: null,
+      modalSelectedColor: null,
+      modalQty: 1,
+      firestoreRef: null
+    };
+
+    /* =====================================================================
+       FIREBASE INTEGRATION ENGINE (FIRESTORE REAL-TIME SYNC)
+       ===================================================================== */
+    function initializeFirebaseCloud() {
+      if (appState.config.firebase && appState.config.firebase.apiKey) {
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(appState.config.firebase);
+          }
+          const db = firebase.firestore();
+          appState.firestoreRef = db;
+          document.getElementById('firebaseStatusLabel').innerText = "Connected Live to Firestore Database";
+          document.getElementById('firebaseStatusLabel').className = "text-emerald-600 font-bold";
+
+          // Listen to Products live
+          db.collection("zoom_products").onSnapshot((snapshot) => {
+            if (!snapshot.empty) {
+              const liveProducts = [];
+              snapshot.forEach(doc => liveProducts.push({ id: doc.id, ...doc.data() }));
+              appState.products = liveProducts;
+              localStorage.setItem('zoom_products', JSON.stringify(liveProducts));
+              renderCatalog();
+              renderCmsProductsTable();
+            }
+          }, (err) => console.log("Firebase sync fallback:", err));
+
+          // Listen to Store Settings live
+          db.collection("zoom_settings").doc("main").onSnapshot((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              appState.config = { ...appState.config, ...data };
+              localStorage.setItem('zoom_config', JSON.stringify(appState.config));
+              applyStoreSettings();
+            }
+          });
+
+        } catch (error) {
+          console.warn("Firebase initialized with local reactive store active.", error);
+        }
+      }
+    }
+
+    /* =====================================================================
+       DOM INITIALIZATION & RENDER
+       ===================================================================== */
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      applyStoreSettings();
+      renderNavigationCategories();
+      renderCatalog();
+      updateCartDisplay();
+      initializeFirebaseCloud();
+
+      // Mobile Drawer hooks
+      document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+        document.getElementById('mobileDrawer').classList.remove('hidden');
+      });
+      document.getElementById('closeMobileMenuBtn').addEventListener('click', () => {
+        document.getElementById('mobileDrawer').classList.add('hidden');
+      });
+      document.getElementById('openCartBtn').addEventListener('click', () => {
+        toggleCartDrawer(true);
+      });
+    });
+
+    /* Apply Brand Configuration & Hero Settings */
+    function applyStoreSettings() {
+      const cfg = appState.config;
+      document.getElementById('brandNameHeader').innerText = cfg.brandName;
+      document.getElementById('footerWhatsappPreview').innerText = cfg.whatsappNumber;
+      
+      // Hero
+      document.getElementById('heroBadge').innerText = cfg.hero.badge;
+      document.getElementById('heroTitle').innerText = cfg.hero.title;
+      document.getElementById('heroSubtitle').innerText = cfg.hero.subtitle;
+      document.getElementById('heroImageElement').src = cfg.hero.imageUrl;
+
+      // Setting Inputs pre-fill
+      document.getElementById('settingWhatsappNumber').value = cfg.whatsappNumber;
+      document.getElementById('settingBrandName').value = cfg.brandName;
+      document.getElementById('settingAdminPassword').value = cfg.adminPassword;
+      document.getElementById('settingHeroTitle').value = cfg.hero.title;
+      document.getElementById('settingHeroSubtitle').value = cfg.hero.subtitle;
+      document.getElementById('settingHeroImageUrl').value = cfg.hero.imageUrl;
+      document.getElementById('settingAccentColor').value = cfg.accentColor || '#111111';
+
+      if (cfg.firebase) {
+        document.getElementById('fbApiKey').value = cfg.firebase.apiKey || '';
+        document.getElementById('fbAuthDomain').value = cfg.firebase.authDomain || '';
+        document.getElementById('fbProjectId').value = cfg.firebase.projectId || '';
+        document.getElementById('fbStorageBucket').value = cfg.firebase.storageBucket || '';
+      }
+    }
+
+    /* Render Category Menus & Pills */
+    function renderNavigationCategories() {
+      const categories = appState.config.categories;
+
+      // Desktop Nav
+      const navContainer = document.getElementById('desktopCategoryNav');
+      navContainer.innerHTML = `
+        <button onclick="filterCategory('ALL')" class="category-nav-link ${appState.selectedCategory === 'ALL' ? 'text-black border-b border-black pb-0.5' : 'text-neutral-500 hover:text-black'} transition-colors" data-category="ALL">All Items</button>
+        ${categories.map(cat => `
+          <button onclick="filterCategory('${cat}')" class="category-nav-link ${appState.selectedCategory === cat ? 'text-black border-b border-black pb-0.5' : 'text-neutral-500 hover:text-black'} transition-colors" data-category="${cat}">${cat}</button>
+        `).join('')}
+      `;
+
+      // Mobile Nav
+      const mobileNav = document.getElementById('mobileCategoryList');
+      mobileNav.innerHTML = `
+        <button onclick="filterCategory('ALL'); document.getElementById('mobileDrawer').classList.add('hidden');" class="text-left py-2 border-b editorial-border">ALL PIECES</button>
+        ${categories.map(cat => `
+          <button onclick="filterCategory('${cat}'); document.getElementById('mobileDrawer').classList.add('hidden');" class="text-left py-2 border-b editorial-border text-neutral-600">${cat}</button>
+        `).join('')}
+      `;
+
+      // Filter Pills
+      const pillsContainer = document.getElementById('filterPillsContainer');
+      pillsContainer.innerHTML = `
+        <button onclick="filterCategory('ALL')" class="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all ${appState.selectedCategory === 'ALL' ? 'bg-black text-white' : 'bg-white border editorial-border text-neutral-600 hover:border-black'}">
+          ALL
+        </button>
+        ${categories.map(cat => `
+          <button onclick="filterCategory('${cat}')" class="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all ${appState.selectedCategory === cat ? 'bg-black text-white' : 'bg-white border editorial-border text-neutral-600 hover:border-black'}">
+            ${cat}
+          </button>
+        `).join('')}
+      `;
+
+      // CMS Category List
+      const cmsCatList = document.getElementById('cmsCategoryList');
+      if (cmsCatList) {
+        cmsCatList.innerHTML = categories.map(cat => `
+          <div class="py-2.5 flex items-center justify-between text-xs">
+            <span class="font-bold tracking-wider">${cat}</span>
+            <button onclick="handleDeleteCategory('${cat}')" class="text-red-500 hover:text-red-700 uppercase font-semibold text-[10px]">Remove</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    /* Filter & Search Handler */
+    function filterCategory(cat) {
+      appState.selectedCategory = cat;
+      document.getElementById('catalogHeaderTitle').innerText = cat === 'ALL' ? 'ALL PIECES' : cat;
+      renderNavigationCategories();
+      renderCatalog();
+    }
+
+    function handleSearch(term) {
+      appState.searchQuery = term.trim().toLowerCase();
+      renderCatalog();
+    }
+
+    /* Render Main Catalog Grid */
+    function renderCatalog() {
+      const grid = document.getElementById('productsGrid');
+      const emptyState = document.getElementById('emptyCatalogState');
+
+      let filtered = appState.products.filter(p => {
+        const matchesCategory = (appState.selectedCategory === 'ALL') || (p.category === appState.selectedCategory);
+        const matchesSearch = !appState.searchQuery || 
+                              p.title.toLowerCase().includes(appState.searchQuery) || 
+                              p.category.toLowerCase().includes(appState.searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = filtered.map(product => `
+        <article class="group cursor-pointer select-none" onclick="openProductModal('${product.id}')">
+          <!-- Card Image Container with Smooth Zoom -->
+          <div class="relative bg-neutral-100 overflow-hidden aspect-[3/4] mb-4 border editorial-border">
+            <img src="${product.image}" 
+                 alt="${product.title}" 
+                 loading="lazy" 
+                 class="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105">
+            
+            <!-- Category Badge -->
+            <span class="absolute top-3 left-3 text-[9px] uppercase font-bold tracking-widest bg-white/90 backdrop-blur-md px-2.5 py-1 text-black border editorial-border">
+              ${product.category}
+            </span>
+
+            <!-- Quick View Hover Overlay -->
+            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
+              <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white bg-black/80 px-4 py-2 backdrop-blur-sm">
+                VIEW DETAILS
+              </span>
+            </div>
+          </div>
+
+          <!-- Product Meta -->
+          <div class="space-y-1.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-black line-clamp-1 group-hover:opacity-70 transition-opacity">
+              ${product.title}
+            </h4>
+            <div class="flex items-baseline justify-between">
+              <p class="text-xs font-extrabold text-black tracking-wide font-sans">
+                ${product.price.toLocaleString()} <span class="text-[10px] font-bold text-neutral-500">EGP</span>
+              </p>
+              <span class="text-[10px] text-neutral-400 uppercase tracking-widest font-mono">
+                ${product.sizes.length} SIZES
+              </span>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    /* =====================================================================
+       PRODUCT DETAIL MODAL INTERACTION
+       ===================================================================== */
+    function openProductModal(productId) {
+      const product = appState.products.find(p => p.id === productId);
+      if (!product) return;
+
+      appState.currentModalProduct = product;
+      appState.modalQty = 1;
+      appState.modalSelectedSize = product.sizes[0] || 'M';
+      appState.modalSelectedColor = product.colors && product.colors.length ? product.colors[0] : { name: "Standard", hex: "#111111" };
+
+      // Set values
+      document.getElementById('modalProductImage').src = product.image;
+      document.getElementById('modalProductTitle').innerText = product.title;
+      document.getElementById('modalProductPrice').innerText = product.price.toLocaleString();
+      document.getElementById('modalCategoryBadge').innerText = product.category;
+      document.getElementById('modalProductDescription').innerText = product.description || "Uncompromising construction engineered for pure luxury.";
+      document.getElementById('modalQtyDisplay').innerText = "1";
+      document.getElementById('modalSelectedColorLabel').innerText = appState.modalSelectedColor.name;
+
+      // Color Swatches
+      const colorContainer = document.getElementById('modalColorSwatches');
+      if (product.colors && product.colors.length > 0) {
+        colorContainer.innerHTML = product.colors.map(col => `
+          <button onclick="selectModalColor('${col.name}', '${col.hex}')" 
+                  class="w-7 h-7 rounded-full border-2 transition-transform ${appState.modalSelectedColor.name === col.name ? 'scale-110 border-black ring-2 ring-black/20' : 'border-neutral-300 opacity-80'}"
+                  style="background-color: ${col.hex};" 
+                  title="${col.name}" aria-label="${col.name}">
+          </button>
+        `).join('');
+      } else {
+        colorContainer.innerHTML = '<span class="text-xs text-neutral-400">Standard Issue</span>';
+      }
+
+      // Sizes Grid
+      const sizeContainer = document.getElementById('modalSizeGrid');
+      sizeContainer.innerHTML = product.sizes.map(sz => `
+        <button onclick="selectModalSize('${sz}')" 
+                class="py-2.5 text-xs font-bold uppercase transition-all border ${appState.modalSelectedSize === sz ? 'bg-black text-white border-black' : 'bg-white text-black border-neutral-200 hover:border-black'}">
+          ${sz}
+        </button>
+      `).join('');
+
+      // Open Modal with Smooth Animation
+      const modal = document.getElementById('productDetailModal');
+      modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      const innerCard = modal.querySelector('div');
+      setTimeout(() => {
+        innerCard.classList.remove('scale-95');
+        innerCard.classList.add('scale-100');
+      }, 10);
+
+      lucide.createIcons();
+    }
+
+    function selectModalSize(sz) {
+      appState.modalSelectedSize = sz;
+      const buttons = document.querySelectorAll('#modalSizeGrid button');
+      buttons.forEach(btn => {
+        if (btn.innerText.trim() === sz) {
+          btn.className = "py-2.5 text-xs font-bold uppercase transition-all border bg-black text-white border-black";
+        } else {
+          btn.className = "py-2.5 text-xs font-bold uppercase transition-all border bg-white text-black border-neutral-200 hover:border-black";
+        }
+      });
+    }
+
+    function selectModalColor(name, hex) {
+      appState.modalSelectedColor = { name, hex };
+      document.getElementById('modalSelectedColorLabel').innerText = name;
+      openProductModal(appState.currentModalProduct.id); // Refresh active ring
+    }
+
+    function adjustModalQty(delta) {
+      appState.modalQty = Math.max(1, appState.modalQty + delta);
+      document.getElementById('modalQtyDisplay').innerText = appState.modalQty;
+    }
+
+    function closeProductModal() {
+      const modal = document.getElementById('productDetailModal');
+      const innerCard = modal.querySelector('div');
+      innerCard.classList.remove('scale-100');
+      innerCard.classList.add('scale-95');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    /* =====================================================================
+       CART DRAWER & WHATSAPP CHECKOUT ENGINE
+       ===================================================================== */
+    function addCurrentProductToBag() {
+      if (!appState.currentModalProduct) return;
+
+      const p = appState.currentModalProduct;
+      const cartItem = {
+        id: p.id + '-' + appState.modalSelectedSize + '-' + appState.modalSelectedColor.name,
+        productId: p.id,
+        title: p.title,
+        price: p.price,
+        image: p.image,
+        size: appState.modalSelectedSize,
+        color: appState.modalSelectedColor,
+        quantity: appState.modalQty
+      };
+
+      // Check existing item
+      const existingIdx = appState.cart.findIndex(i => i.id === cartItem.id);
+      if (existingIdx > -1) {
+        appState.cart[existingIdx].quantity += cartItem.quantity;
+      } else {
+        appState.cart.push(cartItem);
+      }
+
+      saveCartState();
+      updateCartDisplay();
+      closeProductModal();
+      showToast(`${cartItem.quantity}x ${p.title} ADDED TO BAG`);
+      toggleCartDrawer(true);
+    }
+
+    function saveCartState() {
+      localStorage.setItem('zoom_cart', JSON.stringify(appState.cart));
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cartDrawer');
+      const backdrop = document.getElementById('cartBackdrop');
+
+      if (open) {
+        backdrop.classList.remove('hidden');
+        drawer.classList.remove('translate-x-full');
+      } else {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function adjustCartItemQty(cartItemId, delta) {
+      const idx = appState.cart.findIndex(item => item.id === cartItemId);
+      if (idx > -1) {
+        appState.cart[idx].quantity += delta;
+        if (appState.cart[idx].quantity <= 0) {
+          appState.cart.splice(idx, 1);
+        }
+      }
+      saveCartState();
+      updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+      const cartItemsContainer = document.getElementById('cartItemsList');
+      const countBadge = document.getElementById('cartCountBadge');
+      const drawerCount = document.getElementById('drawerItemsCount');
+      const subtotalEl = document.getElementById('drawerSubtotalAmount');
+      const grandTotalEl = document.getElementById('drawerGrandTotalAmount');
+
+      const totalItems = appState.cart.reduce((sum, item) => sum + item.quantity, 0);
+      const grandTotal = appState.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      countBadge.innerText = totalItems;
+      drawerCount.innerText = totalItems;
+      subtotalEl.innerText = `${grandTotal.toLocaleString()} EGP`;
+      grandTotalEl.innerText = `${grandTotal.toLocaleString()} EGP`;
+
+      if (appState.cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+          <div class="py-16 text-center">
+            <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto text-neutral-300 stroke-1 mb-3"></i>
+            <p class="text-xs font-bold uppercase tracking-wider text-neutral-500">Your bag is empty</p>
+            <p class="text-[11px] text-neutral-400 mt-1">Explore our latest architectural garments.</p>
+          </div>
+        `;
+      } else {
+        cartItemsContainer.innerHTML = appState.cart.map(item => `
+          <div class="pt-4 first:pt-0 flex gap-4 items-center">
+            <img src="${item.image}" alt="${item.title}" class="w-16 h-20 object-cover bg-neutral-100 border editorial-border shrink-0">
+            <div class="flex-1 min-w-0">
+              <h5 class="text-xs font-bold uppercase tracking-wider text-black truncate">${item.title}</h5>
+              <div class="flex items-center gap-2 text-[10px] text-neutral-500 font-semibold mt-0.5">
+                <span>SIZE: <strong class="text-black">${item.size}</strong></span>
+                <span>•</span>
+                <span class="flex items-center gap-1">HUE: <span class="w-2 h-2 rounded-full inline-block" style="background:${item.color.hex}"></span> ${item.color.name}</span>
+              </div>
+              <p class="text-xs font-bold text-black mt-1 font-sans">${(item.price * item.quantity).toLocaleString()} EGP</p>
+            </div>
+            <!-- Qty control -->
+            <div class="flex items-center border editorial-border bg-white">
+              <button onclick="adjustCartItemQty('${item.id}', -1)" class="w-6 h-6 flex items-center justify-center text-xs hover:bg-neutral-100 font-bold">-</button>
+              <span class="w-6 text-center text-[11px] font-bold">${item.quantity}</span>
+              <button onclick="adjustCartItemQty('${item.id}', 1)" class="w-6 h-6 flex items-center justify-center text-xs hover:bg-neutral-100 font-bold">+</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    /* WHATSAPP LUXURY CHECKOUT BUILDER */
+    function triggerWhatsAppCheckout() {
+      if (appState.cart.length === 0) {
+        showToast("YOUR BAG IS EMPTY");
+        return;
+      }
+
+      const cfg = appState.config;
+      const grandTotal = appState.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      // Construct professional, beautifully structured message
+      let message = `*HOUSE OF ${cfg.brandName.toUpperCase()} — BESPOKE ORDER*\n`;
+      message += `-------------------------------------------\n\n`;
+      message += `Greetings, I would like to place an order for the following curated pieces:\n\n`;
+
+      appState.cart.forEach((item, idx) => {
+        message += `*${idx + 1}. ${item.title.toUpperCase()}*\n`;
+        message += `   • Size: ${item.size}\n`;
+        message += `   • Color: ${item.color.name}\n`;
+        message += `   • Quantity: ${item.quantity}\n`;
+        message += `   • Subtotal: ${(item.price * item.quantity).toLocaleString()} EGP\n\n`;
+      });
+
+      message += `-------------------------------------------\n`;
+      message += `*TOTAL AMOUNT:* ${grandTotal.toLocaleString()} EGP\n`;
+      message += `*SHIPPING:* Complimentary Domestic Delivery\n`;
+      message += `-------------------------------------------\n`;
+      message += `Please confirm availability and provide fulfillment dispatch details. Thank you.`;
+
+      // Clean phone number (removing spaces, symbols for wa.me link)
+      const cleanPhone = cfg.whatsappNumber.replace(/[^0-9]/g, '');
+      const encodedMsg = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+
+      window.open(whatsappUrl, '_blank');
+    }
+
+    /* =====================================================================
+       HIDDEN ADMIN PANEL & CMS OPERATIONS
+       ===================================================================== */
+    function promptAdminLogin() {
+      document.getElementById('adminAuthModal').classList.remove('hidden');
+    }
+
+    function closeAdminAuthModal() {
+      document.getElementById('adminAuthModal').classList.add('hidden');
+    }
+
+    function verifyAdminAuth(e) {
+      e.preventDefault();
+      const enteredCode = document.getElementById('adminPasswordInput').value;
+      if (enteredCode === appState.config.adminPassword) {
+        closeAdminAuthModal();
+        openAdminDashboard();
+        document.getElementById('adminPasswordInput').value = '';
+      } else {
+        alert("ACCESS DENIED: Master Code Incorrect.");
+      }
+    }
+
+    function openAdminDashboard() {
+      document.getElementById('adminDashboardModal').classList.remove('hidden');
+      renderCmsProductsTable();
+      switchAdminTab('productsTab');
+      lucide.createIcons();
+    }
+
+    function closeAdminDashboard() {
+      document.getElementById('adminDashboardModal').classList.add('hidden');
+    }
+
+    function switchAdminTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.cms-tab-content').forEach(tab => tab.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      // Update tab buttons
+      const tabMap = {
+        productsTab: 'tabBtnProducts',
+        newProductTab: 'tabBtnNewProduct',
+        settingsTab: 'tabBtnSettings',
+        categoriesTab: 'tabBtnCategories',
+        firebaseTab: 'tabBtnFirebase'
+      };
+
+      Object.keys(tabMap).forEach(key => {
+        const btn = document.getElementById(tabMap[key]);
+        if (key === tabId) {
+          btn.className = "py-3.5 border-b-2 border-black text-black font-bold uppercase tracking-wider";
+        } else {
+          btn.className = "py-3.5 border-b-2 border-transparent text-neutral-500 hover:text-black uppercase tracking-wider";
+        }
+      });
+    }
+
+    function renderCmsProductsTable() {
+      const tableBody = document.getElementById('cmsProductsTableBody');
+      document.getElementById('cmsProductCountBadge').innerText = appState.products.length;
+
+      tableBody.innerHTML = appState.products.map(prod => `
+        <tr class="hover:bg-neutral-50">
+          <td class="p-3">
+            <img src="${prod.image}" class="w-10 h-12 object-cover border editorial-border bg-neutral-100">
+          </td>
+          <td class="p-3 font-medium">
+            <div class="font-bold text-black uppercase">${prod.title}</div>
+            <span class="text-[10px] text-neutral-400 font-mono">${prod.category}</span>
+          </td>
+          <td class="p-3 font-bold font-sans">${prod.price.toLocaleString()} EGP</td>
+          <td class="p-3 text-[11px] font-mono">${prod.sizes.join(', ')}</td>
+          <td class="p-3 text-right">
+            <button onclick="handleDeleteProduct('${prod.id}')" class="text-red-500 hover:text-red-700 font-bold uppercase text-[10px]">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* Direct Local Image Preview / Base64 Compression */
+    function previewNewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('imageUploadPreview').src = e.target.result;
+          document.getElementById('imageUploadPreviewContainer').classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function previewHeroUpload(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('settingHeroImageUrl').value = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    /* Add Product Handler */
+    function handleCreateProduct(e) {
+      e.preventDefault();
+      const title = document.getElementById('newProdTitle').value.trim();
+      const price = parseFloat(document.getElementById('newProdPrice').value);
+      const category = document.getElementById('newProdCategory').value;
+      const desc = document.getElementById('newProdDesc').value.trim();
+      const sizesRaw = document.getElementById('newProdSizes').value.split(',').map(s => s.trim().toUpperCase());
+      const colorsRaw = document.getElementById('newProdColors').value.split(',').map(pair => {
+        const parts = pair.split(':');
+        return { name: parts[0]?.trim() || "Default", hex: parts[1]?.trim() || "#111111" };
+      });
+
+      // Get image
+      let imageUrl = document.getElementById('newProdImageUrl').value.trim();
+      const previewImg = document.getElementById('imageUploadPreview');
+      if (!imageUrl && previewImg.src && !document.getElementById('imageUploadPreviewContainer').classList.contains('hidden')) {
+        imageUrl = previewImg.src;
+      }
+      if (!imageUrl) {
+        imageUrl = "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000&auto=format&fit=crop";
+      }
+
+      const newProduct = {
+        id: "zoom-" + Date.now(),
+        title: title.toUpperCase(),
+        price: price,
+        category: category,
+        image: imageUrl,
+        sizes: sizesRaw,
+        colors: colorsRaw,
+        description: desc || "Architectural silhouette crafted for the ZOOM private house collection."
+      };
+
+      appState.products.unshift(newProduct);
+      localStorage.setItem('zoom_products', JSON.stringify(appState.products));
+
+      // Sync with Firestore if active
+      if (appState.firestoreRef) {
+        appState.firestoreRef.collection("zoom_products").doc(newProduct.id).set(newProduct)
+          .catch(err => console.log("Firebase sync fallback:", err));
+      }
+
+      renderCatalog();
+      renderCmsProductsTable();
+      switchAdminTab('productsTab');
+      showToast("PIECE PUBLISHED LIVE TO CATALOGUE");
+    }
+
+    function handleDeleteProduct(id) {
+      if (!confirm("Are you certain you wish to remove this luxury piece from the catalogue?")) return;
+      appState.products = appState.products.filter(p => p.id !== id);
+      localStorage.setItem('zoom_products', JSON.stringify(appState.products));
+
+      if (appState.firestoreRef) {
+        appState.firestoreRef.collection("zoom_products").doc(id).delete().catch(e => console.log(e));
+      }
+
+      renderCatalog();
+      renderCmsProductsTable();
+      showToast("PIECE REMOVED");
+    }
+
+    /* Save Global Settings */
+    function handleSaveSettings(e) {
+      e.preventDefault();
+      appState.config.whatsappNumber = document.getElementById('settingWhatsappNumber').value.trim();
+      appState.config.brandName = document.getElementById('settingBrandName').value.trim();
+      appState.config.adminPassword = document.getElementById('settingAdminPassword').value.trim();
+      appState.config.accentColor = document.getElementById('settingAccentColor').value;
+      appState.config.hero.title = document.getElementById('settingHeroTitle').value.trim();
+      appState.config.hero.subtitle = document.getElementById('settingHeroSubtitle').value.trim();
+      appState.config.hero.imageUrl = document.getElementById('settingHeroImageUrl').value.trim();
+
+      localStorage.setItem('zoom_config', JSON.stringify(appState.config));
+
+      if (appState.firestoreRef) {
+        appState.firestoreRef.collection("zoom_settings").doc("main").set(appState.config).catch(e => console.log(e));
+      }
+
+      applyStoreSettings();
+      showToast("STORE SETTINGS SYNCHRONIZED GLOBALLY");
+    }
+
+    /* Categories Management */
+    function handleAddCategory() {
+      const input = document.getElementById('newCategoryInput');
+      const val = input.value.trim().toUpperCase();
+      if (!val) return;
+
+      if (!appState.config.categories.includes(val)) {
+        appState.config.categories.push(val);
+        localStorage.setItem('zoom_config', JSON.stringify(appState.config));
+        renderNavigationCategories();
+        input.value = '';
+        showToast(`CATEGORY "${val}" CREATED`);
+      }
+    }
+
+    function handleDeleteCategory(cat) {
+      if (appState.config.categories.length <= 1) {
+        alert("At least one category is required.");
+        return;
+      }
+      appState.config.categories = appState.config.categories.filter(c => c !== cat);
+      localStorage.setItem('zoom_config', JSON.stringify(appState.config));
+      renderNavigationCategories();
+      showToast(`CATEGORY REMOVED`);
+    }
+
+    /* Firebase Configuration Save */
+    function handleSaveFirebaseConfig(e) {
+      e.preventDefault();
+      appState.config.firebase = {
+        apiKey: document.getElementById('fbApiKey').value.trim(),
+        authDomain: document.getElementById('fbAuthDomain').value.trim(),
+        projectId: document.getElementById('fbProjectId').value.trim(),
+        storageBucket: document.getElementById('fbStorageBucket').value.trim()
+      };
+      localStorage.setItem('zoom_config', JSON.stringify(appState.config));
+      initializeFirebaseCloud();
+      showToast("FIREBASE CONFIGURATION STORED & INITIALIZED");
+    }
+
+    /* Toast Notification Helper */
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').innerText = message;
+      toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
+      }, 3000);
+    }
+
+    function handleNewsletter(e) {
+      e.preventDefault();
+      showToast("ALLOCATION INVITE SENT TO YOUR INBOX");
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>
